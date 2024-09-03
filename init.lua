@@ -1,43 +1,23 @@
 --[[
 
+- https://learnxinyminutes.com/docs/lua/
 
-===================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-
-  And then you can explore or search through `:help lua-guide`
-  - https://neovim.io/doc/user/lua-guide.html
-
-
-Kickstart Guide:
+And then you can explore or search through `:help lua-guide`
+- https://neovim.io/doc/user/lua-guide.html
 
 I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
 
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
 --]]
+
+local function fileExists(filename)
+  local file = io.open(filename, "r")
+  if file then
+    file:close()
+    return true
+  else
+    return false
+  end
+end
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -70,21 +50,11 @@ vim.opt.rtp:prepend(lazypath)
 
 -- check if project.godot file exists and run a server called godothost to listen
 -- to events coming from godot
+-- on godot's side, we have the command set as:
+--   --server ./godothost --remote-send "<C-\><C-N>:n {file}<CR>{line}G(col)|"
 local godotProjectFile = vim.fn.getcwd() .. '/project.godot'
-
-local function fileExists(filename)
-    local file = io.open(filename, "r")
-    if file then
-        file:close()
-        return true
-    else
-        return false
-    end
-end
-
 if fileExists(godotProjectFile) then
   vim.fn.serverstart './godothost'
-  print("starting godothost")
 end
 
 -- [[ Configure plugins ]]
@@ -121,6 +91,8 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
+
+  { "sindrets/diffview.nvim" },
 
   -- connecint eslint without null-ls
   -- {
@@ -192,6 +164,7 @@ require('lazy').setup({
   --     }
   --   end,
   -- },
+
   { 'echasnovski/mini.nvim', version = '*' },
 
   {
@@ -203,7 +176,6 @@ require('lazy').setup({
   },
 
   { "nvim-neotest/nvim-nio" },
-
 
   {
     'mfussenegger/nvim-dap',
@@ -265,6 +237,7 @@ require('lazy').setup({
 
       vim.keymap.set("n", "<leader>dv", function() require("dapui").eval(nil, { enter = true }) end)
 
+      -- Godot DAP setup
       dap.adapters.godot = {
         type = "server",
         host = '127.0.0.1',
@@ -357,7 +330,12 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim',   event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false }
+  },
 
   {
     -- Autocompletion
@@ -504,9 +482,7 @@ require('lazy').setup({
   },
 
 
-  {
-    "mbbill/undotree"
-  },
+  { "mbbill/undotree" },
 
   { 'nvim-tree/nvim-web-devicons' },
 
@@ -536,74 +512,6 @@ require('lazy').setup({
       vim.keymap.set("n", "<space>-", require("oil").toggle_float)
     end,
   },
-
-  -- {
-  --   -- Theme inspired by Atom
-  --   'navarasu/onedark.nvim',
-  --   priority = 1000,
-  --   config = function()
-  --     vim.cmd.colorscheme 'onedark'
-  --     vim.cmd 'highlight Keyword gui=NONE'
-  --     vim.cmd 'highlight Comment gui=NONE'
-  --     vim.api.nvim_set_hl(0, "Normal", { bg = "none" });
-  --     vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" });
-  --   end,
-  -- },
-  --
-  -- {
-  --   "EdenEast/nightfox.nvim",
-  --   opts = {},
-  --   config = function()
-  --     vim.cmd.colorscheme 'nightfox'
-  --     vim.cmd 'highlight Keyword gui=NONE'
-  --     vim.cmd 'highlight Comment gui=NONE'
-  --     vim.api.nvim_set_hl(0, "Normal", { bg = "none" });
-  --     vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" });
-  --   end,
-  -- },
-
-  -- {
-  --   "EdenEast/nightfox.nvim",
-  --   config = function()
-  --     require('nightfox').setup({
-  --       options = {
-  --         transparent = true, -- Disable setting background
-  --       },
-  --       palettes = {
-  --         nightfox = {
-  --           green = "#00d3e0",
-  --           magenta = "#6958c7",
-  --           red = "#ce2e2c",
-  --           white = "#eeeeee",
-  --           black = "#595783",
-  --           blue = "#318ede",
-  --           comment = "#096900",
-  --           pink = "#cda5b9",
-  --         },
-  --       },
-  --       specs = {
-  --         nightfox = {
-  --           syntax = {
-  --             type = "#b3d1e0",
-  --             func = "magenta",
-  --             keyword = "black",
-  --             field = "red",
-  --             variable = "blue",
-  --             string = "pink",
-  --             const = "red",
-  --           }
-  --         }
-  --       }
-  --     })
-  --     vim.cmd.colorscheme 'nightfox'
-  --     vim.cmd 'highlight Keyword gui=NONE'
-  --     vim.cmd 'highlight Comment gui=NONE'
-  --
-  --     -- since the theme already has transparent background, we don't need these
-  --     -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" });
-  --     -- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" });
-  --   end,
-  -- }, -- lazy
 
   {
     "folke/tokyonight.nvim",
@@ -713,34 +621,11 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
 
-  -- { "nvim-lua/plenary.nvim" },
-
-  -- {
-  --   "ThePrimeagen/harpoon",
-  -- },
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" }
   },
-  --
-  --
-  -- {
-  --   'github/copilot.vim',
-  -- },
-  -- {
-  --     'Exafunction/codeium.vim',
-  --     config = function()
-  --         vim.g.codeium_disable_bindings = 1
-  --         vim.keymap.set('i', '<C-y>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-  --         vim.keymap.set('i', '<C-[>', function() return vim.fn['codeium#CycleCompletions'](1) end,
-  --             { expr = true, silent = true })
-  --         vim.keymap.set('i', '<C-]>', function() return vim.fn['codeium#CycleCompletions'](-1) end,
-  --             { expr = true, silent = true })
-  --         vim.keymap.set('i', '<C-k>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
-  --         v
-  --     end,
-  -- },
 
   {
     -- vim-fugitive git stuff
@@ -876,7 +761,7 @@ vim.keymap.set("x", "<leader>p", "\"_dP")
 vim.keymap.set("n", "<leader>sa", "ggVG")
 
 -- next greatest remap ever : asbjornHaland,
--- yanks into system clipboard, but currently nepvim is setup to use it anyways
+-- yanks into system clipboard, but currently neovim is setup to use it anyways
 -- vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 -- vim.keymap.set("n", "<leader>Y", [["+Y]])
 
@@ -888,17 +773,14 @@ vim.keymap.set({ "n", "v" }, "<leader>dd", [["_d]])
 -- vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 
 -- quick replace for the current selected word
-vim.keymap.set("n", "<leader>sz", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+vim.keymap.set("n", "<leader>sz", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+  { desc = "Quick replace for current word" })
 
 -- close current buffer
 vim.keymap.set("n", "<leader>cb", "<cmd>:bd<CR>", { desc = "Close current buffer" })
 
 -- close all buffers
 vim.keymap.set("n", "<leader>cB", "<cmd>%bd|e#|bd#<CR>", { desc = "Close all buffers" })
-
--- run dotnet project
-vim.keymap.set("n", "<leader>rn", "<cmd>!dotnet run<CR>")
-vim.keymap.set("n", "<leader>rb", "<cmd>!dotnet build<CR>")
 
 -- restart lsp
 vim.keymap.set("n", "<leader>rl", "<cmd>:LspRestart<CR>")
@@ -945,22 +827,25 @@ vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
 -- gdscript format
 vim.keymap.set("n", "<leader>fg", "<cmd>silent !gdformat %<CR>", { silent = true, desc = "Format GDScript file" })
-vim.keymap.set("n", "<leader>rt",
+vim.keymap.set("n", "<leader>rgf", "<cmd>silent !gdformat %<CR>", { silent = true, desc = "Format GDScript file" })
+vim.keymap.set("n", "<leader>rgt",
   "<cmd>!~/Godot/Godot_v4.2-stable_linux.x86_64 -d -s --path \"$PWD\" addons/gut/gut_cmdln.gd<CR>",
   { desc = "Run Godot tests" })
 
-vim.keymap.set("n", "<leader>rx", "<cmd>!backupdotfiles<CR>", { silent = true, desc = "back up dot files" })
+-- run dotnet project
+vim.keymap.set("n", "<leader>rdr", "<cmd>!dotnet run<CR>")
+vim.keymap.set("n", "<leader>rdb", "<cmd>!dotnet build<CR>")
 
 -- run current JS file with node
-vim.keymap.set("n", "<leader>rj", "<cmd>!node %<CR>", { desc = "Run JS file" })
-vim.keymap.set("n", "<leader>rs", "<cmd>!npm start<CR>", { desc = "npm start" })
+vim.keymap.set("n", "<leader>rnj", "<cmd>!node %<CR>", { desc = "Run JS file" })
+vim.keymap.set("n", "<leader>rns", "<cmd>!npm start<CR>", { desc = "npm start" })
 
 vim.keymap.set("n", "<leader>w,", "<cmd>:vert res -10<CR>", { desc = "decrease width by 10" })
 vim.keymap.set("n", "<leader>w.", "<cmd>:vert res +10<CR>", { desc = "increase width by 10" })
 
-vim.keymap.set('n', '<leader>db', "<cmd> DapToggleBreakpoint <CR>", { desc = 'Debug Breakpoint' })
 vim.keymap.set('n', '<leader>dt', function() require('dap-python').test_method() end, { desc = 'Debug Breakpoint' })
 
+-- Godot DAP setup
 local dap = require("dap")
 dap.adapters.godot = {
   type = "server",
@@ -1095,22 +980,6 @@ vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by 
 vim.keymap.set('n', '<leader>ds', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 
--- vim.keymap.set('i', '<C-j>', 'copilot#Accept("\\<CR>")', {
---   expr = true,
---   replace_keycodes = false
--- })
--- vim.keymap.set('i', '<C-k>', 'copilot#Dismiss()', {
---   expr = true,
---   replace_keycodes = false
--- })
--- vim.g.copilot_no_tab_map = true
-
--- vim.keymap.set("n", "<leader>gcd", "<cmd>:Copilot disable<CR>", { desc = "disable copilot" })
--- vim.keymap.set("n", "<leader>gce", "<cmd>:Copilot enable<CR>", { desc = "enable copilot" })
-
-
-
-
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
@@ -1241,8 +1110,11 @@ local on_attach = function(_, bufnr)
 end
 
 -- document existing key chains
--- local wk = require("which-key")
--- wk.add({
+local wk = require("which-key")
+wk.add({
+  { "<leader>s", group = "search" }, -- group
+  { "<leader>r", group = "run" }, -- group
+
 --   { "<leader>f", group = "file" }, -- group
 --   { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find File", mode = "n" },
 --   { "<leader>fb", function() print("hello") end, desc = "Foobar" },
@@ -1261,7 +1133,7 @@ end
 --     { "<leader>q", "<cmd>q<cr>", desc = "Quit" }, -- no need to specify mode since it's inherited
 --     { "<leader>w", "<cmd>w<cr>", desc = "Write" },
 --   }
--- })
+})
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
@@ -1311,8 +1183,6 @@ local servers = {
     },
   },
 }
-
-
 
 -- Setup neovim lua configuration
 require('neodev').setup()
