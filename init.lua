@@ -481,7 +481,6 @@ require('lazy').setup({
     }
   },
 
-
   { "mbbill/undotree" },
 
   { 'nvim-tree/nvim-web-devicons' },
@@ -558,6 +557,12 @@ require('lazy').setup({
   },
 
   {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim" }
+  },
+
+  {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
@@ -619,12 +624,6 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ':TSUpdate',
-  },
-
-  {
-    "ThePrimeagen/harpoon",
-    branch = "harpoon2",
-    dependencies = { "nvim-lua/plenary.nvim" }
   },
 
   {
